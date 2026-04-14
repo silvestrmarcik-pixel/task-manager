@@ -62,7 +62,7 @@ export async function register(formData: FormData) {
     if (error.message.includes('already registered')) {
       return { error: 'Tento e-mail je již zaregistrován.' }
     }
-    return { error: 'Registrace se nezdařila. Zkuste to znovu.' }
+    return { error: error.message }
   }
 
   revalidatePath('/', 'layout')
