@@ -1,4 +1,4 @@
-import { getTasks, getProfiles } from '@/actions/tasks'
+import { getTasks, getProfiles, getCurrentUserProfile } from '@/actions/tasks'
 import TaskList from '@/components/tasks/TaskList'
 import Link from 'next/link'
 import type { TaskStatus } from '@/lib/types'
@@ -19,9 +19,10 @@ export default async function TasksPage({
   const statusFilter = params.status as TaskStatus | undefined
   const assigneeFilter = params.assignee
 
-  const [{ tasks }, { profiles }] = await Promise.all([
+  const [{ tasks }, { profiles }, currentProfile] = await Promise.all([
     getTasks(statusFilter, assigneeFilter),
     getProfiles(),
+    getCurrentUserProfile(),
   ])
 
   return (
@@ -39,7 +40,12 @@ export default async function TasksPage({
         </Link>
       </div>
 
-      <TaskList tasks={tasks} profiles={profiles} />
+      <TaskList
+        tasks={tasks}
+        profiles={profiles}
+        currentUserId={currentProfile?.id ?? ''}
+        isAdmin={currentProfile?.is_admin ?? false}
+      />
     </div>
   )
 }

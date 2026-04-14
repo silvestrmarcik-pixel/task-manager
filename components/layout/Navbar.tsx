@@ -8,15 +8,17 @@ import { useState } from 'react'
 interface NavbarProps {
   userName: string
   userEmail: string
+  isAdmin: boolean
 }
 
-export default function Navbar({ userName, userEmail }: NavbarProps) {
+export default function Navbar({ userName, userEmail, isAdmin }: NavbarProps) {
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const navLinks = [
     { href: '/dashboard', label: 'Přehled' },
     { href: '/tasks', label: 'Úkoly' },
+    ...(isAdmin ? [{ href: '/admin/users', label: 'Uživatelé' }] : []),
   ]
 
   return (
@@ -59,8 +61,13 @@ export default function Navbar({ userName, userEmail }: NavbarProps) {
               onClick={() => setMenuOpen(!menuOpen)}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2 hover:bg-gray-100 transition-colors"
             >
-              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-semibold">
-                {userName.charAt(0).toUpperCase()}
+              <div className="relative">
+                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-semibold">
+                  {userName.charAt(0).toUpperCase()}
+                </div>
+                {isAdmin && (
+                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-400 rounded-full border-2 border-white" title="Admin" />
+                )}
               </div>
               <span className="hidden sm:block text-sm font-medium text-gray-700 max-w-[160px] truncate">
                 {userName}

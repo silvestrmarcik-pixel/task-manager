@@ -11,6 +11,8 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 interface TaskListProps {
   tasks: Task[]
   profiles: Profile[]
+  currentUserId: string
+  isAdmin: boolean
 }
 
 const ALL_STATUSES: { value: string; label: string }[] = [
@@ -31,7 +33,7 @@ function isOverdue(dueDate: string | null, status: TaskStatus) {
   return new Date(dueDate) < new Date()
 }
 
-export default function TaskList({ tasks, profiles }: TaskListProps) {
+export default function TaskList({ tasks, profiles, currentUserId, isAdmin }: TaskListProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -150,17 +152,21 @@ export default function TaskList({ tasks, profiles }: TaskListProps) {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-1">
-                      <Link
-                        href={`/tasks/${task.id}/edit`}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                        title="Upravit"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </Link>
-                      <DeleteTaskDialog taskId={task.id} taskTitle={task.title} />
+                      {(isAdmin || task.created_by === currentUserId || task.assigned_to === currentUserId) && (
+                        <>
+                          <Link
+                            href={`/tasks/${task.id}/edit`}
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            title="Upravit"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </Link>
+                          <DeleteTaskDialog taskId={task.id} taskTitle={task.title} />
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -183,18 +189,20 @@ export default function TaskList({ tasks, profiles }: TaskListProps) {
                 <Link href={`/tasks/${task.id}/edit`} className="font-medium text-gray-900 hover:text-blue-600">
                   {task.title}
                 </Link>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <Link
-                    href={`/tasks/${task.id}/edit`}
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </Link>
-                  <DeleteTaskDialog taskId={task.id} taskTitle={task.title} />
-                </div>
+                {(isAdmin || task.created_by === currentUserId || task.assigned_to === currentUserId) && (
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <Link
+                      href={`/tasks/${task.id}/edit`}
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </Link>
+                    <DeleteTaskDialog taskId={task.id} taskTitle={task.title} />
+                  </div>
+                )}
               </div>
               {task.description && (
                 <p className="text-sm text-gray-500 line-clamp-2">{task.description}</p>

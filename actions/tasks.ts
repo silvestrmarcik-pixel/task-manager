@@ -168,10 +168,24 @@ export async function getProfiles() {
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, full_name, email')
+    .select('id, full_name, email, is_admin')
     .order('full_name')
 
   if (error) return { profiles: [], error: 'Nepodařilo se načíst uživatele.' }
 
   return { profiles: data ?? [], error: null }
+}
+
+export async function getCurrentUserProfile() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, is_admin')
+    .eq('id', user.id)
+    .single()
+
+  return data ?? null
 }
